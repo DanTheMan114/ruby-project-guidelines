@@ -279,12 +279,11 @@ class CLI
             checkout
         end
 
-
     end
 
-    def take_out()
+    # def take_out()
 
-    end
+    # end
 
 
 
