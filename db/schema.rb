@@ -18,8 +18,11 @@ ActiveRecord::Schema.define(version: 2020_12_02_224240) do
   end
 
   create_table "foods", force: :cascade do |t|
+    t.string "hexcode"
+    t.string "emoji"
     t.string "name"
     t.string "category"
+    t.string "tags"
     t.integer "price"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
