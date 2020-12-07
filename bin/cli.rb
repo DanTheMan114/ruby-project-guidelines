@@ -6,18 +6,25 @@ require 'lolize'
 require "tty-table"
 
 class CLI
+    #pid = fork{ exec ‘afplay’, “/Users/dantheman/Flatiron/code/ruby-project-guidelines-1/bin/bensound-thejazzpiano.mp3” }
+    #spawn( 'afplay', “/Users/dantheman/Flatiron/code/ruby-project-guidelines-1/bin/bensound-thejazzpiano.mp3” )
 
     attr_reader :prompt, :font
-    attr_accessor :customer, :cart
+    attr_accessor :customer, :cart, :pid
 
     def main_menu
         system 'clear'
+        play_music
+        #pid = fork{ exec ‘afplay’, “/Users/dantheman/Flatiron/code/ruby-project-guidelines-1/bin/bensound-thejazzpiano.mp3” }
+        #pid = spawn( 'afplay', '/Users/dantheman/Flatiron/code/ruby-project-guidelines-1/bin/bensound-thejazzpiano.mp3' )
+        #pid = fork{ system 'killall', '/Users/dantheman/Flatiron/code/ruby-project-guidelines-1/bin/bensound-thejazzpiano.mp3' }
+        #`say Welcome to The Cart`
         @font = TTY::Font.new
         @pastel = Pastel.new
         opener
         puts @pastel.cyan(@font.write("                                   Shopping        Cart !!"))
         puts "                             
-        dMo                                     
+    dMo                                     
         yMN`                                    
         :MM+                                    
          mMNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNh
@@ -49,7 +56,24 @@ class CLI
         elsif choice == '🔹Exit'.red
             exit
         end
+        #pid = fork{ system 'killall', '/Users/dantheman/Flatiron/code/ruby-project-guidelines-1/bin/bensound-thejazzpiano.mp3' }
+        # pid = fork{ exec ‘killall’, “afplay” }
+        #Process.kill "TERM", @pid 
+        switch_song
     end
+
+
+    def switch_song
+        Process.kill "TERM", @pid
+    end 
+
+
+
+    def play_music
+        @pid = spawn( 'afplay','/Users/dantheman/Flatiron/code/ruby-project-guidelines-1/bin/bensound-thejazzpiano.mp3' )
+    end
+
+
 
     def signup
         system 'clear'
@@ -145,7 +169,7 @@ class CLI
 
 
     def shopping
-        puts 'yay'
+        #puts 'yay'
         prompt = TTY::Prompt.new
         choices = [ '🔹View Profile'.blue, '🔹View Cart'.green, '🔹Get To Shopping'.yellow,'🔹Checkout'.white, '🔹Exit'.red]
         system 'clear'
@@ -217,10 +241,11 @@ class CLI
 
 
     def go_to_shopping(cart = [])
+        #binding.pry
         system 'clear'
         colorizer = Lolize::Colorizer.new
         colorizer.write "
-        `oddddo`                     
+            `oddddo`                     
         `oddssssddo`                   
        -mym`    `mym-                  
       :dhd.      .dhd:                 
@@ -260,11 +285,12 @@ ymddddyooooooooooooooooooooyddddmy       \n ".lines.map { |line| line.center(100
             sub_choices = []
             iter = 0
             while iter < sub_foods.length do
-                sub_choices << sub_foods[iter] + "  " + ([hexcode[iter]].map { |e| e.to_i(16) }.pack 'U*')
+                sub_choices << sub_foods[iter] + ":" + ([hexcode[iter]].map { |e| e.to_i(16) }.pack 'U*')
                 iter += 1
             end
             foods = prompt.multi_select("Use Space Bar |____| to select/unselect #{choice}, and hit Enter when done.", sub_choices)
-            cart << foods
+            foods.select{|f| cart<< f.strip.split(":")[0]}
+            #cart << foods
             puts "\n\n #{foods.join(",")} has/have been added to your cart"
             sleep(1)
             go_to_shopping(cart.flatten)
@@ -291,15 +317,18 @@ ymddddyooooooooooooooooooooyddddmy       \n ".lines.map { |line| line.center(100
         if choice == '🔹Remove & Add'
             remove_and_add(cart)
         elsif choice == '🔹View Receipt'
+            #binding.pry
             view_receipt(cart)
         elsif choice == '🔹Exit'
             exit
         end
+        #binding.pry
 
     end
 
 
     def view_receipt(cart=[])
+        #puts cart
         categories = []
         cart.uniq.each do |food_item|
             categories << Food.find_by(name: food_item).category
@@ -327,37 +356,51 @@ ymddddyooooooooooooooooooooyddddmy       \n ".lines.map { |line| line.center(100
         colorizer.write table.render(:ascii, alignments: %i[center]) do |renderer|
         renderer.border.separator = :each_row
         colorizer.write "\n\n Thank you for shopping with us.\n Your grand total is = $#{total.sum}\n\n"
+        #binding.pry
         end
+        #binding.pry
+    end
 
-    def remove_and_add(cart)
+
+    
+
+
+    def remove_and_add(cart=[])
         prompt = TTY::Prompt.new
-        choices = ['🔹Remove', '🔹Add', '🔹Exit']
-        choice = prompt.select('\n \n', choices)
-        if choice == '🔹Remove'
+        choices = ['🔹Remove'.yellow, '🔹Add'.green, '🔹Exit'.red]
+        choice = prompt.select("\n \n", choices)
+        if choice == '🔹Remove'.yellow
+            #binding.pry
             remove(cart)
-        elsif choice == '🔹Add'
+        elsif choice == '🔹Add'.green
             go_to_shopping(cart)
-        elsif choice == '🔹Exit'
+        elsif choice == '🔹Exit'.red
             exit
         end
 
     end
 
     def remove(cart=[])
-        trash = []
+        #trash = []
         puts 'YOU ARE NOW REMOVING ITEMS FROM A CART'
         prompt = TTY::Prompt.new
         choices = (cart)
         choice = prompt.multi_select('\n \n', choices)
-        if choice == cart.index(0..10)
-            trash << cart.index(0..10)
-            trash.destroy_all
-            checkout
-        else 
-            puts 'yay'
-            checkout
-        end
-
+        choice.select{|car| cart.delete(car)}
+        #trash << choice
+        #cart -= trash
+        puts "has been removed #{cart}"
+        sleep(5)
+        checkout(cart)
+        #binding.pry
+        #if choice == cart.index(0..10)
+            # trash << choice
+            # cart -= trash
+        #     checkout
+        # else 
+        #     puts 'yay'
+        #     checkout
+        #end
     end
 
     # def take_out()
@@ -377,6 +420,3 @@ ymddddyooooooooooooooooooooyddddmy       \n ".lines.map { |line| line.center(100
     end
 
 end
-
-
-
