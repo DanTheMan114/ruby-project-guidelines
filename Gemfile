@@ -26,4 +26,3 @@ gem 'json'
 gem 'colorize'
 gem 'lolize'
 gem "tty-table"
-gem "rubocopy"

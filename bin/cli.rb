@@ -246,46 +246,29 @@ hyo+::::::::::::::::::::::::::::+oyh
 :yy+////++++++++++++++++++++////+yy:       
 ymddddyooooooooooooooooooooyddddmy       \n ".lines.map { |line| line.center(100) }.join("")
         prompt = TTY::Prompt.new
-        choices = ['🔹Fruits'.blue, '🔹Vegetables'.green, '🔹Spices','🔹View Cart'.yellow, '🔹Checkout'.magenta, '🔹Exit'.red]
+        choices = Food.all.map{|food| food.category}.uniq+['🔹View Cart'.yellow,'🔹Checkout'.magenta,'🔹Exit'.red]
         choice = prompt.select("\n                                                                    Select an Aisle! \n", choices)
-        if choice == '🔹Fruits'.blue
-            prompt = TTY::Prompt.new
-            fruit_choices = Food.where(category: "Fruits").map{|fruit| fruit.name}
-            fruits = prompt.multi_select("Use Space Bar |____| to select/unselect Fruits, and hit Enter when done.", fruit_choices)
-            cart << fruits
-            puts "\n\n #{fruits.join(",")} has/have been added to your cart"
-            sleep(1)
-            go_to_shopping(cart.flatten)
-        elsif choice == '🔹Vegetables'.green
-            prompt = TTY::Prompt.new
-            vegetable_choices = Food.where(category: "Vegetables").map{|veg| veg.name}
-            vegetables = prompt.multi_select("Use Space Bar |____| to select/unselect Vegetables, and hit Enter when done.", vegetable_choices)
-            puts "\n\n #{vegetables.join(",")} has/have been added to your cart"
-            sleep(1)
-            cart << vegetables
-            go_to_shopping(cart.flatten)
-        elsif choice == '🔹Spices'
-            prompt = TTY::Prompt.new
-            spice_choices = Food.where(category: "Spices").map{|spice| spice.name}
-            spices = prompt.multi_select("Use Space Bar |____| to select/unselect Spices, and hit Enter when done.", spice_choices)
-            puts "\n\n #{spices.join(",")} has/have been added to your cart"
-            sleep(1)
-            cart << spices
-            go_to_shopping(cart.flatten)
-        elsif choice == '🔹View Cart'.yellow
+        if choice == '🔹View Cart'.yellow
             view_cart(cart.flatten)
         elsif choice == '🔹Checkout'.magenta
             checkout(cart)
         elsif choice == '🔹Exit'.red and cart.length == 0
             exit
+        else
+            hexcode = Food.where(category: choice).map{|food| food.hexcode}
+            sub_foods = Food.where(category: choice).map{|food| food.name}
+            sub_choices = []
+            iter = 0
+            while iter < sub_foods.length do
+                sub_choices << sub_foods[iter] + "  " + ([hexcode[iter]].map { |e| e.to_i(16) }.pack 'U*')
+                iter += 1
+            end
+            foods = prompt.multi_select("Use Space Bar |____| to select/unselect #{choice}, and hit Enter when done.", sub_choices)
+            cart << foods
+            puts "\n\n #{foods.join(",")} has/have been added to your cart"
+            sleep(1)
+            go_to_shopping(cart.flatten)
         end
-        # # choose from aisles choices = [fruits, vegetables, spices, meats, delete items] 
-        # # select foods from aisle and display prices and emojis 
-        # # added to cart -> optional to add quantity
-        # # at the end of aisles, go back to aisle choices
-        # go_back
-        # cart = []
-        #shopping
     end
 
 
@@ -301,12 +284,6 @@ ymddddyooooooooooooooooooooyddddmy       \n ".lines.map { |line| line.center(100
         end
     end
 
-        # }
-        # cart = []
-        # total = calculates total
-        # checkout
-        # go_back
-
 
     def checkout(cart=[])
         prompt = TTY::Prompt.new
@@ -320,17 +297,6 @@ ymddddyooooooooooooooooooooyddddmy       \n ".lines.map { |line| line.center(100
             exit
         end
 
-        # customer.food.each{|food|
-        #     puts "Fruits #{}"
-        #     puts "Vegetables #{}"
-        #     puts "Spices #{}"
-        # have a price and food list and a grand total
-
-        # show receipt
-        #update cart/remove stuff if need be
-        ## be able to select items out of the cart 
-        # exit
-        # go_back
     end
 
     def remove_and_add
@@ -356,7 +322,7 @@ ymddddyooooooooooooooooooooyddddmy       \n ".lines.map { |line| line.center(100
         table_array = []
         index = 0
         while index < cart.length do
-            table_array << [cart.uniq[index],categories[index],prices[index],quantities[index],total[index]]
+            table_array << [cart.uniq[index],categories[index],prices[index],quantities[index],'$'+total[index].to_s()]
             index += 1
         end
         table = TTY::Table.new(%w[Item Category Price/Item Quantity Total],
@@ -366,7 +332,7 @@ ymddddyooooooooooooooooooooyddddmy       \n ".lines.map { |line| line.center(100
         renderer.border.separator = :each_row
         end
 
-        colorizer.write "\n\n Thank you for shopping with us.\n Your grand total is = #{total.sum}\n\n"
+        colorizer.write "\n\n Thank you for shopping with us.\n Your grand total is = $#{total.sum}\n\n"
     
     end
 

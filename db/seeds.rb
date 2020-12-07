@@ -2,6 +2,7 @@ require_relative "../config/environment.rb"
 require_relative "../app/models/customer.rb"
 require_relative "../app/models/food.rb"
 require_relative "../app/models/order.rb"
+require_relative "../app/models/food_api.rb"
 require 'net/http'
 require 'open-uri'
 require 'json'
@@ -27,11 +28,18 @@ Customer.create(name:'Dan', password:'123')
 Customer.create(name:'Tee', password:'321')
 Customer.create(name:'Bob', password:'111')
 
-Food.create(name: 'Methi', category: 'Spices', price: 3)
-Food.create(name: 'Rosemary', category: 'Spices', price: 1)
-Food.create(name: 'Parsnip', category: 'Vegetables', price: 4)
-Food.create(name: 'Apple', category: "Fruits", price: 2)
+# Food.create(name: 'Methi', category: 'Spices', price: 3)
+# Food.create(name: 'Rosemary', category: 'Spices', price: 1)
+# Food.create(name: 'Parsnip', category: 'Vegetables', price: 4)
+# Food.create(name: 'Apple', category: "Fruits", price: 2)
 
+foods = GetFoods.new
+food_api = foods.food_school[0]
+iter = 0
+while iter < food_api.length do
+  Food.create(hexcode: food_api[iter][0],emoji: food_api[iter][1], name: food_api[iter][2],category: food_api[iter][3], tags: food_api[iter][4], price: food_api[iter][5])
+  iter += 1
+end
 
 Order.create(customer_id: Customer.all.sample.id, food_id: Food.all.sample.id, quantity: 2)
 Order.create(customer_id: Customer.all.sample.id, food_id: Food.all.sample.id, quantity: 2)
