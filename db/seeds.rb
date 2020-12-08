@@ -45,6 +45,9 @@ Order.create(customer_id: Customer.all.sample.id, food_id: Food.all.sample.id, q
 Order.create(customer_id: Customer.all.sample.id, food_id: Food.all.sample.id, quantity: 2)
 Order.create(customer_id: Customer.all.sample.id, food_id: Food.all.sample.id, quantity: 2)
 
+
+Customer.create(name: 'Admin', password: '123')
+
 puts "Food"
 
 
