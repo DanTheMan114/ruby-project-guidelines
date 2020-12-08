@@ -173,25 +173,6 @@ class CLI
         # shopping
 
 
-    def shopping
-        #puts 'yay'
-        system 'clear'
-        prompt = TTY::Prompt.new
-        choices = [ '🔹View Profile'.blue, '🔹View Cart'.green, '🔹Get To Shopping'.yellow,'🔹Checkout'.white, '🔹Exit'.red]
-        system 'clear'
-        choice = prompt.select("\n                                                                           🔹Welcome Back!!🔹 \n", choices)
-        if choice == '🔹View Profile'.blue
-            profile
-        elsif choice == '🔹View Cart'.green
-            view_cart
-        elsif choice == '🔹Get To Shopping'.yellow
-            go_to_shopping
-        elsif choice == '🔹Checkout'.white
-            checkout
-        elsif choice == '🔹Exit'.red
-            exit
-        end
-    end
 
 
     def profile
